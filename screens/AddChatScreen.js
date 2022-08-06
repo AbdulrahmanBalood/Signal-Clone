@@ -5,14 +5,17 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { db } from "../firebase";
 const AddChatScreen = ({ navigation }) => {
   const [input, setInput] = useState("");
-  const creatChat = async()=> {
-    await db.collection('chats').add({
-        chatName: input
-    }).then(()=> {
-        navigation.goBack()
-    })
-    .catch((error)=> alert(error.message))
-  }
+  const creatChat = async () => {
+    await db
+      .collection("chats")
+      .add({
+        chatName: input,
+      })
+      .then(() => {
+        navigation.goBack();
+      })
+      .catch((error) => alert(error.message));
+  };
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Add New Chat",
@@ -27,9 +30,11 @@ const AddChatScreen = ({ navigation }) => {
         onChangeText={(text) => {
           setInput(text);
         }}
-        leftIcon={<Icon name="wechat" type="antdesign" size={24} color='black' />}
+        leftIcon={
+          <Icon name="wechat" type="antdesign" size={24} color="black" />
+        }
       />
-      <Button onPress={creatChat} title="Create new Chat"/>
+      <Button onPress={creatChat} title="Create new Chat" />
     </View>
   );
 };
@@ -37,5 +42,5 @@ const AddChatScreen = ({ navigation }) => {
 export default AddChatScreen;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: { backgroundColor: "white", padding: 30, height: "100%" },
 });

@@ -6,13 +6,26 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 
 import CustomListItem from "../component/CustomListItem";
 import { Avatar } from "@rneui/themed";
 import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
 import { auth, db } from "../firebase";
 const HomeScreen = ({ navigation }) => {
+  const [chats, setChats] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = db.collection("chats").onSnapshot((snapshot) =>
+      setChats(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    );
+    return unsubscribe;
+  },[]);
   const signOutUser = () => {
     auth.signOut().then(() => {
       navigation.replace("Login");
@@ -44,7 +57,14 @@ const HomeScreen = ({ navigation }) => {
             <AntDesign name="camerao" size={24} color="black" />
           </TouchableOpacity>
           <TouchableOpacity activeOpacity={0.5}>
-            <SimpleLineIcons onPress={()=> {navigation.navigate("AddChat")}} name="pencil" size={24} color="black" />
+            <SimpleLineIcons
+              onPress={() => {
+                navigation.navigate("AddChat");
+              }}
+              name="pencil"
+              size={24}
+              color="black"
+            />
           </TouchableOpacity>
         </View>
       ),
@@ -52,8 +72,10 @@ const HomeScreen = ({ navigation }) => {
   }, []);
   return (
     <SafeAreaView>
-      <ScrollView>
-        <CustomListItem />
+      <ScrollView style={styles.container}>
+        {chats.map(({ id, data: { chatName } }) => (
+          <CustomListItem id={id} key={id} chatName={chatName} />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -61,4 +83,8 @@ const HomeScreen = ({ navigation }) => {
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+    container:{
+        height:'100%'
+    }
+});
