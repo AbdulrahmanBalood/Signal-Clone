@@ -25,7 +25,7 @@ const HomeScreen = ({ navigation }) => {
       )
     );
     return unsubscribe;
-  },[]);
+  }, []);
   const signOutUser = () => {
     auth.signOut().then(() => {
       navigation.replace("Login");
@@ -69,12 +69,22 @@ const HomeScreen = ({ navigation }) => {
         </View>
       ),
     });
-  }, []);
+  }, [navigation]);
+
+  const enterChat = (id, chatName) => {
+    navigation.navigate("Chat", { id, chatName });
+  };
+
   return (
     <SafeAreaView>
       <ScrollView style={styles.container}>
         {chats.map(({ id, data: { chatName } }) => (
-          <CustomListItem id={id} key={id} chatName={chatName} />
+          <CustomListItem
+            enterChat={enterChat}
+            id={id}
+            key={id}
+            chatName={chatName}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -84,7 +94,7 @@ const HomeScreen = ({ navigation }) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-    container:{
-        height:'100%'
-    }
+  container: {
+    height: "100%",
+  },
 });
