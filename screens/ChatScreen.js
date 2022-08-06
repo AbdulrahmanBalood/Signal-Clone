@@ -23,17 +23,8 @@ import firebase from "firebase/compat/app";
 
 const ChatScreen = ({ navigation, route }) => {
   const [input, setInput] = useState("");
-  const sendMessage = () => {
-    Keyboard.dismiss();
-    db.collection("chats").doc(route.params.id).collection("message").add({
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      message: input,
-      displayName: auth.currentUser.displayName,
-      email: auth.currentUser.email,
-      photoUrl: auth.currentUser.photoURL,
-    });
-    setInput("");
-  };
+  const [messages, setMessages] = useState([]);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Chat",
@@ -76,6 +67,35 @@ const ChatScreen = ({ navigation, route }) => {
       ),
     });
   }, [navigation]);
+  const sendMessage = () => {
+    Keyboard.dismiss();
+    db.collection("chats").doc(route.params.id).collection("message").add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      message: input,
+      displayName: auth.currentUser.displayName,
+      email: auth.currentUser.email,
+      photoUrl: auth.currentUser.photoURL,
+    });
+    setInput("");
+  };
+
+  useLayoutEffect(() => {
+    const unsubscribe = db
+      .collection("chats")
+      .doc(route.params.id)
+      .collection("message")
+      .orderBy("timestamp", "asc")
+      .onSnapshot((snapshot) =>
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        )
+      );
+
+    return unsubscribe;
+  }, [route]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -87,7 +107,35 @@ const ChatScreen = ({ navigation, route }) => {
         keyboardVerticalOffset={90}
       >
         <>
-          <ScrollView></ScrollView>
+          <ScrollView>
+            {messages.map(({ id, data }) =>
+              data.email === auth.currentUser.email ? (
+                <View key={id} style={styles.reciver}>
+                  <Avatar
+                    rounded
+                    size={30}
+                    position="absolute"
+                    bottom={-15}
+                    right={-5}
+                    source={{ uri: data.photoUrl }}
+                  />
+                  
+                  <Text style={styles.reviverText}>{data.message}</Text>
+                </View>
+              ) : (
+                <View style={styles.sender}>
+                  <Avatar
+                    rounded
+                    size={30}
+                    position="absolute"
+                    bottom={-15}
+                    source={{ uri: data.photoUrl }}
+                  />
+                  <Text style={styles.senderText}>{data.message}</Text>
+                </View>
+              )
+            )}
+          </ScrollView>
           <View style={styles.footer}>
             <TextInput
               placeholder="Enter Message"
@@ -98,6 +146,7 @@ const ChatScreen = ({ navigation, route }) => {
                 setInput(text);
               }}
             />
+     
             <TouchableOpacity activeOpacity={0.5} onPress={sendMessage}>
               <Ionicons name="send" size={24} color="#2B68E6" />
             </TouchableOpacity>
@@ -130,4 +179,25 @@ const styles = StyleSheet.create({
     color: "gray",
     borderRadius: 30,
   },
+  sender: {
+    padding: 15,
+    backgroundColor: "#ECECEC",
+    alignSelf: "flex-start",
+    borderRadius: 20,
+    margin: 15,
+
+    maxWidth: "80%",
+    position: "relative",
+  },
+  reciver: {
+    padding: 15,
+    backgroundColor: "#1DA1F2",
+    alignSelf: "flex-end",
+    borderRadius: 20,
+    margin: 15,
+    maxWidth: "80%",
+    position: "relative",
+  },
+  reviverText: {},
+  senderText: {},
 });
