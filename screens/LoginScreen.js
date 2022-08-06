@@ -14,7 +14,16 @@ const LoginScreen = ({ navigation }) => {
     });
     return unsubscribe;
   }, []);
-  const signIn = () => {};
+  const signIn = async() => {
+    try{
+        if (email !== '' && password !== ''){
+            await auth.signInWithEmailAndPassword(email,password)
+        }
+    }catch(error){
+        alert(error.message)
+    }
+    
+  };
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar style="light" />
@@ -43,6 +52,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={(text) => {
             setPassword(text);
           }}
+          onSubmitEditing={signIn}
         />
       </View>
       <Button containerStyle={styles.button} onPress={signIn} title="Login" />
