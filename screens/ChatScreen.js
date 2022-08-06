@@ -40,7 +40,9 @@ const ChatScreen = ({ navigation, route }) => {
           <Avatar
             rounded
             source={{
-              uri: "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png",
+              uri:
+                messages[messages.length-1]?.data.photoUrl ||
+                "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png",
             }}
           />
           <Text style={{ color: "white", marginLeft: 10, fontWeight: "700" }}>
@@ -66,7 +68,7 @@ const ChatScreen = ({ navigation, route }) => {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, messages]);
   const sendMessage = () => {
     Keyboard.dismiss();
     db.collection("chats").doc(route.params.id).collection("message").add({
@@ -119,7 +121,7 @@ const ChatScreen = ({ navigation, route }) => {
                     right={-5}
                     source={{ uri: data.photoUrl }}
                   />
-                  
+
                   <Text style={styles.reviverText}>{data.message}</Text>
                 </View>
               ) : (
@@ -131,6 +133,7 @@ const ChatScreen = ({ navigation, route }) => {
                     bottom={-15}
                     source={{ uri: data.photoUrl }}
                   />
+                  <Text style={styles.senderName}>{data.displayName}</Text>
                   <Text style={styles.senderText}>{data.message}</Text>
                 </View>
               )
@@ -146,7 +149,7 @@ const ChatScreen = ({ navigation, route }) => {
                 setInput(text);
               }}
             />
-     
+
             <TouchableOpacity activeOpacity={0.5} onPress={sendMessage}>
               <Ionicons name="send" size={24} color="#2B68E6" />
             </TouchableOpacity>
@@ -197,6 +200,11 @@ const styles = StyleSheet.create({
     margin: 15,
     maxWidth: "80%",
     position: "relative",
+  },
+  senderName: {
+    paddingRight: 10,
+    fontSize: 10,
+    color: "#1DA1F2",
   },
   reviverText: {},
   senderText: {},
